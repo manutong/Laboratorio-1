@@ -1,0 +1,141 @@
+import java.util.Scanner;
+import java.io.*;
+public class BigVigenere {
+    int[] key;  
+    char[][] alphabet; 
+
+    
+    public BigVigenere() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ingrese la clave numérica: ");
+        String numericKey = scanner.nextLine();
+        this.key = convertir_Key(numericKey);
+        alphabet_();  
+    }
+
+
+    public BigVigenere(String numericKey) {
+        this.key = convertir_Key(numericKey);
+        alphabet_();  
+    }
+
+   private int[] convertir_Key(String numericKey) {
+    int[] keyArr = new int[numericKey.length()];
+    for (int i = 0; i < numericKey.length(); i++) {
+        keyArr[i] = Character.getNumericValue(numericKey.charAt(i));
+    }
+    return keyArr;
+}
+
+
+    private void alphabet_() {
+        String Alphabet_chars = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz0123456789";
+        alphabet = new char[64][64];
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 64; j++) {
+                alphabet[i][j] = Alphabet_chars.charAt((i + j) % 64);
+            }
+        }
+    }
+
+
+    public String encrypt(String message) {
+        StringBuilder encryptedMessage = new StringBuilder();
+        for (int i = 0; i < message.length(); i++) {
+            char msgChar = message.charAt(i);
+            int fila = buscar_fila(msgChar);
+            if (fila == -1) {
+                encryptedMessage.append(msgChar);
+                continue;
+            }
+            int key_I = i % key.length;
+            int col = key[key_I];
+            encryptedMessage.append(alphabet[fila][col]);
+        }
+        return encryptedMessage.toString();
+    }
+
+
+    public String decrypt(String encryptedMessage) {
+        StringBuilder decryptedMessage = new StringBuilder();
+        for (int i = 0; i < encryptedMessage.length(); i++) {
+            char encryptedChar = encryptedMessage.charAt(i);
+            int fila = buscar_fila(encryptedChar);
+            if (fila == -1) {
+                decryptedMessage.append(encryptedChar);
+                continue;
+            }
+            int key_I = i % key.length;
+            int col = buscar_columna(encryptedChar, fila);
+            int decryptedCol = (col - key[key_I] + 64) % 64;
+            decryptedMessage.append(alphabet[fila][decryptedCol]);
+        }
+        return decryptedMessage.toString();
+    }
+
+
+    private int buscar_fila(char c) {
+        String Alphabet_ = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz0123456789";
+        return Alphabet_.indexOf(c);
+    }
+
+
+    private int buscar_columna(char c, int fila) {
+        for (int col = 0; col < 64; col++) {
+            if (alphabet[fila][col] == c) {
+                return col;
+            }
+        }
+        return -1;
+    }
+
+
+    public char search(int position) {
+        int c = 0;
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 64; j++) {
+                if (c == position) {
+                    return alphabet[i][j];
+                }
+                c++;
+            }
+        }
+        return '\0'; 
+    }
+
+ 
+    public char optimalSearch(int position) {
+        if (position < 0 || position >= 64 * 64) {
+            return '\0'; 
+        }
+        int fila = position / 64;
+        int col = position % 64;
+        return alphabet[fila][col];
+    }
+
+
+    public void printAlphabet() {
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 64; j++) {
+                System.out.print(alphabet[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        BigVigenere cipher = new BigVigenere("10");
+        String message = " ";
+        String encryptedMessage = cipher.encrypt(message);
+        System.out.println("Mensaje Cifrado : " + encryptedMessage);
+
+        String decryptedMessage = cipher.decrypt(encryptedMessage);
+        System.out.println("Mensaje Descifrado : " + decryptedMessage);
+
+ 
+
+  
+}
+
+}
